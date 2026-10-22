@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Tesoro del Sacré Coeur</title>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: system-ui, sans-serif; }
+    #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: 10px 14px;
+           background: rgba(0,0,0,.6); color: #fff; display: flex; justify-content: space-between; font-size: 15px; }
+    #msg { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 14px; min-height: 60px;
+           background: rgba(20,20,60,.85); color: #ffe27a; font-size: 17px; text-align: center; }
+    #intro { position: fixed; inset: 0; z-index: 20; background: #14143c; color: #fff; display: flex;
+             flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+    #intro button { margin-top: 20px; padding: 12px 28px; font-size: 18px; border: 0; border-radius: 8px; background: #ffe27a; }
+    #win { display: none; position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.85); color: gold;
+           flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 22px; padding: 24px; }
+  </style>
+</head>
+<body>
+  <div id="intro">
+    <h1>🗝️ El Tesoro del Sacré Coeur</h1>
+    <p>Un tesoro está escondido en el edificio. Encuentra los 3 marcadores, descifra las pistas y reclámalo.<br>
+       Permite el acceso a la cámara y apunta a los marcadores.</p>
+    <button id="start">Comenzar</button>
+  </div>
+  <div id="hud"><span id="progress">Marcadores: 0/3</span><span id="timer">00:00</span></div>
+  <div id="msg">Busca el marcador inicial (HIRO) para empezar la aventura.</div>
+  <div id="win">🏆<br>¡Encontraste el tesoro!<br><small id="final"></small></div>
+
+  <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; colorManagement: true"
+           arjs="trackingMethod: best; sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
+
+    <!-- Marcador 1: HIRO - historia -->
+    <a-marker preset="hiro" id="m1" game-marker="idx: 0; text: Hace 100 años un estudiante escondió un tesoro. Primera pista: busca el marcador KANJI, donde nace el conocimiento.">
+      <a-text value="Historia" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-box position="0 0.5 0" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
+    </a-marker>
+
+    <!-- Marcador 2: KANJI - pista -->
+    <a-marker preset="kanji" id="m2" game-marker="idx: 1; text: ¡Bien! Segunda pista: el último marcador (código de barras 5) guarda la llave del cofre.">
+      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-sphere position="0 0.6 0" radius="0.5" color="#e24a90" animation="property: position; to: 0 1 0; dir: alternate; loop: true; dur: 900"></a-sphere>
+    </a-marker>
+
+    <!-- Marcador 3: barcode 5 - llave -->
+    <a-marker type="barcode" value="5" id="m3" game-marker="idx: 2; text: ¡Tienes la llave! Vuelve a apuntar a cualquier marcador para abrir el cofre.">
+      <a-text value="La llave" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-cone position="0 0.6 0" radius-bottom="0.4" height="1" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
+    </a-marker>
+
+    <!-- Cofre final: aparece sobre cualquier marcador al completar todos -->
+    <a-entity id="treasure" visible="false">
+      <a-box color="#8b5a2b" width="1" height="0.6" depth="0.7" position="0 0.3 0"></a-box>
+      <a-sphere color="gold" radius="0.3" position="0 0.9 0" animation="property: position; to: 0 1.3 0; dir: alternate; loop: true; dur: 700"></a-sphere>
+    </a-entity>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    const TOTAL = 3;
+    const found = new Set();
+    let startTime = null, timerId = null, done = false;
+    const $ = id => document.getElementById(id);
+
+    function beep(freq = 660, dur = 0.2) {
+      try {
+        const ctx = beep.ctx || (beep.ctx = new (window.AudioContext || window.webkitAudioContext)());
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = freq; o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.2, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        o.start(); o.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+
+    $('start').addEventListener('click', () => {
+      $('intro').style.display = 'none';
+      startTime = Date.now();
+      beep(440);
+      timerId = setInterval(() => { if (!done) $('timer').textContent = fmt(Math.floor((Date.now() - startTime) / 1000)); }, 500);
+    });
+
+    AFRAME.registerComponent('game-marker', {
+      schema: { idx: { type: 'int' }, text: { type: 'string' } },
+      init() {
+        this.el.addEventListener('markerFound', () => {
+          if (!startTime || done) return;
+          if (!found.has(this.data.idx)) {
+            found.add(this.data.idx);
+            $('progress').textContent = `Marcadores: ${found.size}/${TOTAL}`;
+            beep(500 + 150 * found.size);
+            if (navigator.vibrate) navigator.vibrate(150);
+          }
+          if (found.size === TOTAL) {
+            // Al completar todos, el cofre aparece sobre el marcador actual
+            const t = $('treasure');
+            this.el.appendChild(t);
+            t.setAttribute('visible', true);
+            $('msg').textContent = '¡El cofre se abrió! Mira el tesoro.';
+            if (!done) {
+              done = true;
+              clearInterval(timerId);
+              [660, 880, 1100].forEach((f, i) => setTimeout(() => beep(f, 0.3), i * 250));
+              setTimeout(() => {
+                $('final').textContent = `Tiempo: ${$('timer').textContent}`;
+                $('win').style.display = 'flex';
+              }, 3000);
+            }
+          } else {
+            $('msg').textContent = this.data.text;
+          }
+        });
+      }
+    });
+
+    $('win').addEventListener('click', () => { $('win').style.display = 'none'; });
+  </script>
+</body>
+</html>
