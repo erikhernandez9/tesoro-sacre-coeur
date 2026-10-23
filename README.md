@@ -1,21 +1,42 @@
 # Tesoro del Sacré Coeur (AR.js + A-Frame)
 
-Juego de búsqueda del tesoro con 3 marcadores:
+Juego de búsqueda del tesoro con 3 puntos reales del edificio. Usa **image tracking (NFT)** de AR.js:
+no hay que imprimir marcadores, la cámara reconoce directamente el objeto.
 
-| # | Marcador | Función |
-|---|----------|---------|
-| 1 | HIRO | Historia / desafío inicial |
-| 2 | KANJI | Segunda pista |
-| 3 | Barcode 5 (matriz 3x3) | La llave; al completar, aparece el cofre |
+| # | Punto | Pista que lleva a él | Función |
+|---|-------|----------------------|---------|
+| 1 | Cuadro de la Virgen | Al frente de la Capilla del Encuentro | Historia / desafío inicial |
+| 2 | Carteles de reciclaje (papel y cartón) | Reciclaje de papel y cartón | Segunda pista |
+| 3 | Máquina expendedora | Al frente de los baños del piso 1 | La llave; al completar, aparece el cofre |
 
-Imágenes para imprimir (repo AR.js):
-- Hiro: https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg
-- Kanji: https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/kanji.png (o el patrón en `aframe/examples/image-tracking`/`data/data`)
-- Barcode 5: https://github.com/AR-js-org/AR.js/tree/master/data/images (carpeta de barcodes) o generador en https://au.gmented.com/app/marker/marker.php (Matrix 3x3, valor 5)
+## Estructura
+- `index.html`: juego (A-Frame + AR.js NFT, lógica de progreso, pistas y temporizador).
+- `markers/src/*.png`: fotos fuente de cada punto (ya rotadas, 750x1000).
+- `markers/<nombre>.{iset,fset,fset3}`: descriptores NFT generados desde las fotos. **Requeridos para que funcione.**
 
-Imprimir y colocar en distintos lugares del edificio.
+## Generar los descriptores NFT
+Con [NFT-Marker-Creator](https://github.com/webarkit/Nft-Marker-Creator-App) (Node >= 20.17):
+
+```bash
+git clone https://github.com/webarkit/Nft-Marker-Creator-App.git && cd Nft-Marker-Creator-App && npm install
+cd src
+node NFTMarkerCreator.js -i /ruta/al/repo/markers/src/cuadro.png
+node NFTMarkerCreator.js -i /ruta/al/repo/markers/src/reciclaje.png
+node NFTMarkerCreator.js -i /ruta/al/repo/markers/src/expendedora.png
+```
+
+Copiar los `.iset/.fset/.fset3` resultantes (`output/`) a `markers/` con los nombres `cuadro`, `reciclaje`, `expendedora`.
+Alternativa sin Node: https://carnaux.github.io/NFT-Marker-Creator/
+
+## Ajustar contenido 3D
+Las unidades del contenido dentro de `<a-nft>` dependen del tamaño/DPI de la imagen. Si los objetos salen muy
+grandes/chicos o fuera de lugar, ajustar `scale` y `position` en `index.html`.
 
 ## Publicar en GitHub Pages
-1. Subir `index.html` a un repo nuevo.
+1. Subir el repo a GitHub (incluida la carpeta `markers/`).
 2. Settings → Pages → Branch `main` / root.
 3. La URL `https://<usuario>.github.io/<repo>/` es el entregable (HTTPS necesario para la cámara).
+
+## Consejos de uso
+- Buena luz, apuntar de frente al objeto y a ~1-2 m.
+- La expendedora y el cuadro deben reconocerse sin reflejos fuertes encima.

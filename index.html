@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Tesoro del Sacré Coeur</title>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar-nft.js"></script>
   <style>
     body { margin: 0; overflow: hidden; font-family: system-ui, sans-serif; }
     #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: 10px 14px;
@@ -22,34 +22,35 @@
 <body>
   <div id="intro">
     <h1>🗝️ El Tesoro del Sacré Coeur</h1>
-    <p>Un tesoro está escondido en el edificio. Encuentra los 3 marcadores, descifra las pistas y reclámalo.<br>
-       Permite el acceso a la cámara y apunta a los marcadores.</p>
+    <p>Un tesoro está escondido en el edificio. Encuentra los 3 puntos, descifra las pistas y reclámalo.<br>
+       Permite el acceso a la cámara y apunta a cada lugar.</p>
+    <p id="first-clue"></p>
     <button id="start">Comenzar</button>
   </div>
-  <div id="hud"><span id="progress">Marcadores: 0/3</span><span id="timer">00:00</span></div>
-  <div id="msg">Busca el marcador inicial (HIRO) para empezar la aventura.</div>
+  <div id="hud"><span id="progress">Puntos: 0/3</span><span id="timer">00:00</span></div>
+  <div id="msg"></div>
   <div id="win">🏆<br>¡Encontraste el tesoro!<br><small id="final"></small></div>
 
   <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; colorManagement: true"
-           arjs="trackingMethod: best; sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
+           arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
-    <!-- Marcador 1: HIRO - historia -->
-    <a-marker preset="hiro" id="m1" game-marker="idx: 0; text: Hace 100 años un estudiante escondió un tesoro. Primera pista: busca el marcador KANJI, donde nace el conocimiento.">
-      <a-text value="Historia" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
-      <a-box position="0 0.5 0" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
-    </a-marker>
+    <a-nft type="nft" url="markers/cuadro" id="m1" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
+           game-marker="idx: 0">
+      <a-text value="Historia" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
+      <a-box position="0 50 0" scale="50 50 50" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
+    </a-nft>
 
-    <!-- Marcador 2: KANJI - pista -->
-    <a-marker preset="kanji" id="m2" game-marker="idx: 1; text: ¡Bien! Segunda pista: el último marcador (código de barras 5) guarda la llave del cofre.">
-      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
-      <a-sphere position="0 0.6 0" radius="0.5" color="#e24a90" animation="property: position; to: 0 1 0; dir: alternate; loop: true; dur: 900"></a-sphere>
-    </a-marker>
+    <a-nft type="nft" url="markers/reciclaje" id="m2" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
+           game-marker="idx: 1">
+      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
+      <a-sphere position="0 60 0" radius="25" color="#e24a90" animation="property: position; to: 0 100 0; dir: alternate; loop: true; dur: 900"></a-sphere>
+    </a-nft>
 
-    <!-- Marcador 3: barcode 5 - llave -->
-    <a-marker type="barcode" value="5" id="m3" game-marker="idx: 2; text: ¡Tienes la llave! Vuelve a apuntar a cualquier marcador para abrir el cofre.">
-      <a-text value="La llave" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
-      <a-cone position="0 0.6 0" radius-bottom="0.4" height="1" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
-    </a-marker>
+    <a-nft type="nft" url="markers/expendedora" id="m3" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
+           game-marker="idx: 2">
+      <a-text value="La llave" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
+      <a-cone position="0 60 0" radius-bottom="20" height="50" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
+    </a-nft>
 
     <!-- Cofre final: aparece sobre cualquier marcador al completar todos -->
     <a-entity id="treasure" visible="false">
@@ -61,7 +62,13 @@
   </a-scene>
 
   <script>
-    const TOTAL = 3;
+    const FIRST_CLUE = 'Primera pista: busca la pintura que está al frente de la Capilla del Encuentro.';
+    const CLUES = [
+      'Hace 100 años un estudiante escondió un tesoro. Segunda pista: busca el reciclaje de papel y cartón.',
+      '¡Bien! Última pista: la llave está en la máquina expendedora al frente de los baños del piso 1.',
+      '¡Tienes la llave! El cofre se abre...'
+    ];
+    const TOTAL = CLUES.length;
     const found = new Set();
     let startTime = null, timerId = null, done = false;
     const $ = id => document.getElementById(id);
@@ -79,21 +86,24 @@
 
     function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
 
+    $('first-clue').textContent = FIRST_CLUE;
+
     $('start').addEventListener('click', () => {
       $('intro').style.display = 'none';
+      $('msg').textContent = FIRST_CLUE;
       startTime = Date.now();
       beep(440);
       timerId = setInterval(() => { if (!done) $('timer').textContent = fmt(Math.floor((Date.now() - startTime) / 1000)); }, 500);
     });
 
     AFRAME.registerComponent('game-marker', {
-      schema: { idx: { type: 'int' }, text: { type: 'string' } },
+      schema: { idx: { type: 'int' } },
       init() {
         this.el.addEventListener('markerFound', () => {
           if (!startTime || done) return;
           if (!found.has(this.data.idx)) {
             found.add(this.data.idx);
-            $('progress').textContent = `Marcadores: ${found.size}/${TOTAL}`;
+            $('progress').textContent = `Puntos: ${found.size}/${TOTAL}`;
             beep(500 + 150 * found.size);
             if (navigator.vibrate) navigator.vibrate(150);
           }
@@ -113,7 +123,7 @@
               }, 3000);
             }
           } else {
-            $('msg').textContent = this.data.text;
+            $('msg').textContent = CLUES[this.data.idx];
           }
         });
       }
