@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Tesoro del Sacré Coeur</title>
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar-nft.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.5/aframe/build/aframe-ar.js"></script>
   <style>
     body { margin: 0; overflow: hidden; font-family: system-ui, sans-serif; }
     #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: 10px 14px;
@@ -23,7 +23,7 @@
   <div id="intro">
     <h1>🗝️ El Tesoro del Sacré Coeur</h1>
     <p>Un tesoro está escondido en el edificio. Encuentra los 3 puntos, descifra las pistas y reclámalo.<br>
-       Permite el acceso a la cámara y apunta a cada lugar.</p>
+       Permite el acceso a la cámara y apunta a los marcadores.</p>
     <p id="first-clue"></p>
     <button id="start">Comenzar</button>
   </div>
@@ -32,25 +32,22 @@
   <div id="win">🏆<br>¡Encontraste el tesoro!<br><small id="final"></small></div>
 
   <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; colorManagement: true"
-           arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+           arjs="trackingMethod: best; sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
 
-    <a-nft type="nft" url="markers/cuadro" id="m1" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
-           game-marker="idx: 0">
-      <a-text value="Historia" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
-      <a-box position="0 50 0" scale="50 50 50" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
-    </a-nft>
+    <a-marker type="barcode" value="1" id="m1" game-marker="idx: 0">
+      <a-text value="Historia" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-box position="0 0.5 0" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
+    </a-marker>
 
-    <a-nft type="nft" url="markers/reciclaje" id="m2" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
-           game-marker="idx: 1">
-      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
-      <a-sphere position="0 60 0" radius="25" color="#e24a90" animation="property: position; to: 0 100 0; dir: alternate; loop: true; dur: 900"></a-sphere>
-    </a-nft>
+    <a-marker type="barcode" value="2" id="m2" game-marker="idx: 1">
+      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-sphere position="0 0.6 0" radius="0.5" color="#e24a90" animation="property: position; to: 0 1 0; dir: alternate; loop: true; dur: 900"></a-sphere>
+    </a-marker>
 
-    <a-nft type="nft" url="markers/expendedora" id="m3" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
-           game-marker="idx: 2">
-      <a-text value="La llave" align="center" color="#ffe27a" position="0 120 0" scale="150 150 150"></a-text>
-      <a-cone position="0 60 0" radius-bottom="20" height="50" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
-    </a-nft>
+    <a-marker type="barcode" value="3" id="m3" game-marker="idx: 2">
+      <a-text value="La llave" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
+      <a-cone position="0 0.6 0" radius-bottom="0.4" height="1" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
+    </a-marker>
 
     <!-- Cofre final: aparece sobre cualquier marcador al completar todos -->
     <a-entity id="treasure" visible="false">

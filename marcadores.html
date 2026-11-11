@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marcadores del Tesoro</title>
+  <style>
+    body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; background: #fff; color: #000; }
+    h1 { font-size: 20px; text-align: center; }
+    .marker { page-break-after: always; break-after: page; display: flex; flex-direction: column; align-items: center; margin: 24px 0 48px; }
+    .marker:last-child { page-break-after: auto; break-after: auto; }
+    .marker img { width: min(80vw, 12cm); image-rendering: pixelated; padding: 1.5cm; background: #fff; }
+    .marker p { margin: 4px 0; font-size: 16px; }
+    @media print { h1, .hint { display: none; } .marker { margin: 0; padding-top: 2cm; } }
+  </style>
+</head>
+<body>
+  <h1>Marcadores del Tesoro del Sacré Coeur</h1>
+  <p class="hint" style="text-align:center">Imprimir en A4, uno por hoja. Mantener el borde blanco alrededor.</p>
+
+  <div class="marker">
+    <img src="markers/barcode-1.png" alt="Marcador 1">
+    <p><strong>1</strong> · Al lado del cuadro de la Virgen (frente a la Capilla del Encuentro)</p>
+  </div>
+  <div class="marker">
+    <img src="markers/barcode-2.png" alt="Marcador 2">
+    <p><strong>2</strong> · En los carteles de reciclaje de papel y cartón</p>
+  </div>
+  <div class="marker">
+    <img src="markers/barcode-3.png" alt="Marcador 3">
+    <p><strong>3</strong> · En la máquina expendedora frente a los baños del piso 1</p>
+  </div>
+</body>
+</html>
