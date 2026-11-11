@@ -34,17 +34,17 @@
   <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; colorManagement: true"
            arjs="trackingMethod: best; sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
 
-    <a-marker type="barcode" value="1" id="m1" game-marker="idx: 0">
+    <a-marker type="barcode" value="1" id="m1" data-idx="0">
       <a-text value="Historia" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
       <a-box position="0 0.5 0" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
     </a-marker>
 
-    <a-marker type="barcode" value="2" id="m2" game-marker="idx: 1">
+    <a-marker type="barcode" value="2" id="m2" data-idx="1">
       <a-text value="Pista 2" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
       <a-sphere position="0 0.6 0" radius="0.5" color="#e24a90" animation="property: position; to: 0 1 0; dir: alternate; loop: true; dur: 900"></a-sphere>
     </a-marker>
 
-    <a-marker type="barcode" value="3" id="m3" game-marker="idx: 2">
+    <a-marker type="barcode" value="3" id="m3" data-idx="2">
       <a-text value="La llave" align="center" color="#ffe27a" position="0 1.2 0" rotation="-90 0 0" scale="3 3 3"></a-text>
       <a-cone position="0 0.6 0" radius-bottom="0.4" height="1" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
     </a-marker>
@@ -93,37 +93,33 @@
       timerId = setInterval(() => { if (!done) $('timer').textContent = fmt(Math.floor((Date.now() - startTime) / 1000)); }, 500);
     });
 
-    AFRAME.registerComponent('game-marker', {
-      schema: { idx: { type: 'int' } },
-      init() {
-        this.el.addEventListener('markerFound', () => {
-          if (!startTime || done) return;
-          if (!found.has(this.data.idx)) {
-            found.add(this.data.idx);
-            $('progress').textContent = `Puntos: ${found.size}/${TOTAL}`;
-            beep(500 + 150 * found.size);
-            if (navigator.vibrate) navigator.vibrate(150);
-          }
-          if (found.size === TOTAL) {
-            // Al completar todos, el cofre aparece sobre el marcador actual
-            const t = $('treasure');
-            this.el.appendChild(t);
-            t.setAttribute('visible', true);
-            $('msg').textContent = '¡El cofre se abrió! Mira el tesoro.';
-            if (!done) {
-              done = true;
-              clearInterval(timerId);
-              [660, 880, 1100].forEach((f, i) => setTimeout(() => beep(f, 0.3), i * 250));
-              setTimeout(() => {
-                $('final').textContent = `Tiempo: ${$('timer').textContent}`;
-                $('win').style.display = 'flex';
-              }, 3000);
-            }
-          } else {
-            $('msg').textContent = CLUES[this.data.idx];
-          }
-        });
-      }
+    document.querySelectorAll('a-marker[data-idx]').forEach(el => {
+      const idx = Number(el.dataset.idx);
+      el.addEventListener('markerFound', () => {
+        if (!startTime || done) return;
+        if (!found.has(idx)) {
+          found.add(idx);
+          $('progress').textContent = `Puntos: ${found.size}/${TOTAL}`;
+          beep(500 + 150 * found.size);
+          if (navigator.vibrate) navigator.vibrate(150);
+        }
+        if (found.size === TOTAL) {
+          // Al completar todos, el cofre aparece sobre el marcador actual
+          const t = $('treasure');
+          el.appendChild(t);
+          t.setAttribute('visible', true);
+          $('msg').textContent = '¡El cofre se abrió! Mira el tesoro.';
+          done = true;
+          clearInterval(timerId);
+          [660, 880, 1100].forEach((f, i) => setTimeout(() => beep(f, 0.3), i * 250));
+          setTimeout(() => {
+            $('final').textContent = `Tiempo: ${$('timer').textContent}`;
+            $('win').style.display = 'flex';
+          }, 3000);
+        } else {
+          $('msg').textContent = CLUES[idx];
+        }
+      });
     });
 
     $('win').addEventListener('click', () => { $('win').style.display = 'none'; });
