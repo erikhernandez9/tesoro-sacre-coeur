@@ -28,6 +28,7 @@
   <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
   <link href="https://api.fontshare.com/v2/css?f[]=chillax@500,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="game.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.js"></script>
 </head>
 <body>
   <template id="shield-svg">
@@ -62,21 +63,21 @@
   </div>
 
   <header id="hud">
-    <div class="chip">
+    <div class="glass bar">
       <span>Piezas</span>
       <div class="slots">
         <span class="slot slot-1">1</span>
         <span class="slot slot-2">2</span>
         <span class="slot slot-3">3</span>
       </div>
+      <span class="divider" aria-hidden="true"></span>
+      <span class="timer"><span class="visually-hidden">Tiempo </span><span id="timer">00:00</span></span>
     </div>
-    <div class="chip timer"><span class="visually-hidden">Tiempo </span><span id="timer">00:00</span></div>
+    <section id="msg" class="glass" aria-live="polite">
+      <h2 id="msg-label">Pista</h2>
+      <p id="msg-text"></p>
+    </section>
   </header>
-
-  <section id="msg" aria-live="polite">
-    <h2 id="msg-label">Pista</h2>
-    <p id="msg-text"></p>
-  </section>
 
   <div id="win" class="screen hidden">
     <div class="sheet">
@@ -98,8 +99,10 @@
       <a-text value="Pieza 1/3" align="center" data-color="--color-3d-label" position="0 0.1 -1.1" face-camera scale="2 2 2"></a-text>
       <a-entity class="piece" position="0 0.3 0" face-camera>
         <a-entity rotation="90 0 0">
-          <a-cylinder radius="0.5" height="0.12" theta-start="0" theta-length="120" data-color="--color-piece-1"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
+          <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
+            <!-- desplaza el gajo para que su centroide quede sobre el marcador -->
+            <a-cylinder position="-0.239 0 -0.138" radius="0.5" height="0.12" theta-start="0" theta-length="120" data-color="--color-piece-1"></a-cylinder>
+          </a-entity>
         </a-entity>
       </a-entity>
     </a-marker>
@@ -108,8 +111,9 @@
       <a-text value="Pieza 2/3" align="center" data-color="--color-3d-label" position="0 0.1 -1.1" face-camera scale="2 2 2"></a-text>
       <a-entity class="piece" position="0 0.3 0" face-camera>
         <a-entity rotation="90 0 0">
-          <a-cylinder radius="0.5" height="0.12" theta-start="120" theta-length="120" data-color="--color-piece-2"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
+          <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
+            <a-cylinder position="0 0 0.276" radius="0.5" height="0.12" theta-start="120" theta-length="120" data-color="--color-piece-2"></a-cylinder>
+          </a-entity>
         </a-entity>
       </a-entity>
     </a-marker>
@@ -118,8 +122,9 @@
       <a-text value="Pieza 3/3" align="center" data-color="--color-3d-label" position="0 0.1 -1.1" face-camera scale="2 2 2"></a-text>
       <a-entity class="piece" position="0 0.3 0" face-camera>
         <a-entity rotation="90 0 0">
-          <a-cylinder radius="0.5" height="0.12" theta-start="240" theta-length="120" data-color="--color-piece-3"
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
+          <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
+            <a-cylinder position="0.239 0 -0.138" radius="0.5" height="0.12" theta-start="240" theta-length="120" data-color="--color-piece-3"></a-cylinder>
+          </a-entity>
         </a-entity>
       </a-entity>
     </a-marker>
@@ -224,12 +229,22 @@
       });
     });
 
+    function celebrate() {
+      if (!window.confetti) return;
+      const css = getComputedStyle(document.documentElement);
+      const colors = ['--color-piece-1', '--color-piece-2', '--color-piece-3'].map(t => css.getPropertyValue(t).trim());
+      const burst = { particleCount: 90, spread: 75, startVelocity: 45, colors, disableForReducedMotion: true, zIndex: 1000 };
+      confetti({ ...burst, angle: 60, origin: { x: 0, y: 0.7 } });
+      confetti({ ...burst, angle: 120, origin: { x: 1, y: 0.7 } });
+      setTimeout(() => confetti({ ...burst, particleCount: 140, spread: 110, origin: { y: 0.35 } }), 350);
+    }
+
     function showWin() {
       $('final').textContent = $('timer').textContent;
       const shield = $('win').querySelector('.shield');
       shield.classList.add('broken');
       $('win').classList.remove('hidden');
-      setTimeout(() => shield.classList.remove('broken'), 400);
+      setTimeout(() => { shield.classList.remove('broken'); celebrate(); }, 400);
     }
 
     $('again').addEventListener('click', () => location.reload());
