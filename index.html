@@ -21,49 +21,57 @@
 </head>
 <body>
   <div id="intro">
-    <h1>🗝️ El Tesoro del Sacré Coeur</h1>
-    <p>Un tesoro está escondido en el edificio. Encuentra los 3 puntos, descifra las pistas y reclámalo.<br>
-       Permite el acceso a la cámara y apunta a los marcadores.</p>
+    <h1>🛡️ Las 3 piezas del escudo</h1>
+    <p>El escudo original de la UCU se rompió en 3 piezas y alguien las escondió en el Sacré Coeur.<br>
+       Recolectá las 3 piezas para reconstruirlo y desbloquear el tesoro.</p>
+    <p>Permití el acceso a la cámara y apuntá a los marcadores.</p>
     <p id="first-clue"></p>
     <button id="start">Comenzar</button>
   </div>
-  <div id="hud"><span id="progress">Puntos: 0/3</span><span id="timer">00:00</span></div>
+  <div id="hud"><span id="progress">Piezas: ⬜ ⬜ ⬜</span><span id="timer">00:00</span></div>
   <div id="msg"></div>
-  <div id="win">🏆<br>¡Encontraste el tesoro!<br><small id="final"></small></div>
+  <div id="win">🛡️<br>¡Reconstruiste el escudo!<br><small id="final"></small></div>
 
   <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true; colorManagement: true"
            arjs="trackingMethod: best; sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
 
     <a-marker type="barcode" value="1" id="m1" data-idx="0">
-      <a-text value="Historia" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
-      <a-box position="0 0.35 0" scale="0.7 0.7 0.7" color="#4a90e2" animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-box>
+      <a-text value="Pieza 1/3" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
+      <a-cylinder class="piece" position="0 0.3 0" radius="0.5" height="0.12" theta-start="0" theta-length="120" color="#1e4fa3"
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
     </a-marker>
 
     <a-marker type="barcode" value="2" id="m2" data-idx="1">
-      <a-text value="Pista 2" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
-      <a-sphere position="0 0.4 0" radius="0.35" color="#e24a90" animation="property: position; to: 0 0.8 0; dir: alternate; loop: true; dur: 900"></a-sphere>
+      <a-text value="Pieza 2/3" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
+      <a-cylinder class="piece" position="0 0.3 0" radius="0.5" height="0.12" theta-start="120" theta-length="120" color="#f2c230"
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
     </a-marker>
 
     <a-marker type="barcode" value="3" id="m3" data-idx="2">
-      <a-text value="La llave" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
-      <a-cone position="0 0.4 0" radius-bottom="0.3" height="0.7" color="#50e290" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear"></a-cone>
+      <a-text value="Pieza 3/3" align="center" color="#ffe27a" position="0 0.1 -1.1" rotation="-90 0 0" scale="2 2 2"></a-text>
+      <a-cylinder class="piece" position="0 0.3 0" radius="0.5" height="0.12" theta-start="240" theta-length="120" color="#4a90e2"
+                  animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
     </a-marker>
 
-    <!-- Cofre final: aparece sobre cualquier marcador al completar todos -->
-    <a-entity id="treasure" visible="false">
-      <a-box color="#8b5a2b" width="1" height="0.6" depth="0.7" position="0 0.3 0"></a-box>
-      <a-sphere color="gold" radius="0.3" position="0 0.9 0" animation="property: position; to: 0 1.3 0; dir: alternate; loop: true; dur: 700"></a-sphere>
+    <!-- Escudo final: aparece sobre cualquier marcador al completar todos -->
+    <a-entity id="treasure" visible="false" position="0 0.3 0"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
+      <a-cylinder radius="0.5" height="0.12" theta-start="0" theta-length="120" color="#1e4fa3"></a-cylinder>
+      <a-cylinder radius="0.5" height="0.12" theta-start="120" theta-length="120" color="#f2c230"></a-cylinder>
+      <a-cylinder radius="0.5" height="0.12" theta-start="240" theta-length="120" color="#4a90e2"></a-cylinder>
+      <a-box position="0 0.08 0" width="0.12" height="0.04" depth="0.6" color="#ffffff"></a-box>
+      <a-box position="0 0.08 -0.08" width="0.4" height="0.04" depth="0.12" color="#ffffff"></a-box>
     </a-entity>
 
     <a-entity camera></a-entity>
   </a-scene>
 
   <script>
-    const FIRST_CLUE = 'Primera pista: busca la pintura que está al frente de la Capilla del Encuentro.';
+    const FIRST_CLUE = 'Primera pista: la primera pieza está en la pintura al frente de la Capilla del Encuentro.';
     const CLUES = [
-      'Hace 100 años un estudiante escondió un tesoro. Segunda pista: busca el reciclaje de papel y cartón.',
-      '¡Bien! Última pista: la llave está en la máquina expendedora al frente de los baños del piso 1.',
-      '¡Tienes la llave! El cofre se abre...'
+      '¡Pieza 1! La segunda pieza está donde el papel y el cartón tienen segunda vida.',
+      '¡Pieza 2! La última pieza la custodia una máquina hambrienta frente a los baños del piso 1.',
+      '¡Pieza 3! El escudo se está reconstruyendo...'
     ];
     const TOTAL = CLUES.length;
     const found = new Set();
@@ -79,6 +87,11 @@
         g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
         o.start(); o.stop(ctx.currentTime + dur);
       } catch (e) {}
+    }
+
+    function renderInventory() {
+      const slots = CLUES.map((_, i) => (found.has(i) ? '✅' : '⬜')).join(' ');
+      $('progress').textContent = `Piezas: ${slots}`;
     }
 
     function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
@@ -99,16 +112,17 @@
         if (!startTime || done) return;
         if (!found.has(idx)) {
           found.add(idx);
-          $('progress').textContent = `Puntos: ${found.size}/${TOTAL}`;
+          renderInventory();
           beep(500 + 150 * found.size);
           if (navigator.vibrate) navigator.vibrate(150);
         }
         if (found.size === TOTAL) {
-          // Al completar todos, el cofre aparece sobre el marcador actual
+          // Al completar todos, el escudo armado reemplaza a la pieza del marcador actual
           const t = $('treasure');
+          el.querySelector('.piece').setAttribute('visible', false);
           el.appendChild(t);
           t.setAttribute('visible', true);
-          $('msg').textContent = '¡El cofre se abrió! Mira el tesoro.';
+          $('msg').textContent = '¡Las 3 piezas encajaron! El escudo de la UCU está completo.';
           done = true;
           clearInterval(timerId);
           [660, 880, 1100].forEach((f, i) => setTimeout(() => beep(f, 0.3), i * 250));
