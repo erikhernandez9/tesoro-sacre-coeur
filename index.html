@@ -53,16 +53,6 @@
                   animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear"></a-cylinder>
     </a-marker>
 
-    <!-- Escudo final: aparece sobre cualquier marcador al completar todos -->
-    <a-entity id="treasure" visible="false" position="0 0.3 0"
-              animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
-      <a-cylinder radius="0.5" height="0.12" theta-start="0" theta-length="120" color="#1e4fa3"></a-cylinder>
-      <a-cylinder radius="0.5" height="0.12" theta-start="120" theta-length="120" color="#f2c230"></a-cylinder>
-      <a-cylinder radius="0.5" height="0.12" theta-start="240" theta-length="120" color="#4a90e2"></a-cylinder>
-      <a-box position="0 0.08 0" width="0.12" height="0.04" depth="0.6" color="#ffffff"></a-box>
-      <a-box position="0 0.08 -0.08" width="0.4" height="0.04" depth="0.12" color="#ffffff"></a-box>
-    </a-entity>
-
     <a-entity camera></a-entity>
   </a-scene>
 
@@ -73,6 +63,14 @@
       '¡Pieza 2! La última pieza la custodia una máquina hambrienta frente a los baños del piso 1.',
       '¡Pieza 3! El escudo se está reconstruyendo...'
     ];
+    const SHIELD_HTML = `
+      <a-entity position="0 0.3 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
+        <a-cylinder radius="0.5" height="0.12" theta-start="0" theta-length="120" color="#1e4fa3"></a-cylinder>
+        <a-cylinder radius="0.5" height="0.12" theta-start="120" theta-length="120" color="#f2c230"></a-cylinder>
+        <a-cylinder radius="0.5" height="0.12" theta-start="240" theta-length="120" color="#4a90e2"></a-cylinder>
+        <a-box position="0 0.08 0" width="0.12" height="0.04" depth="0.6" color="#ffffff"></a-box>
+        <a-box position="0 0.08 -0.08" width="0.4" height="0.04" depth="0.12" color="#ffffff"></a-box>
+      </a-entity>`;
     const TOTAL = CLUES.length;
     const found = new Set();
     let startTime = null, timerId = null, done = false;
@@ -117,11 +115,10 @@
           if (navigator.vibrate) navigator.vibrate(150);
         }
         if (found.size === TOTAL) {
-          // Al completar todos, el escudo armado reemplaza a la pieza del marcador actual
-          const t = $('treasure');
+          // Al completar todos, el escudo armado reemplaza a la pieza del marcador actual.
+          // Se crea uno nuevo: mover entidades A-Frame entre padres no se renderiza bien.
           el.querySelector('.piece').setAttribute('visible', false);
-          el.appendChild(t);
-          t.setAttribute('visible', true);
+          el.insertAdjacentHTML('beforeend', SHIELD_HTML);
           $('msg').textContent = '¡Las 3 piezas encajaron! El escudo de la UCU está completo.';
           done = true;
           clearInterval(timerId);
@@ -129,7 +126,7 @@
           setTimeout(() => {
             $('final').textContent = `Tiempo: ${$('timer').textContent}`;
             $('win').style.display = 'flex';
-          }, 3000);
+          }, 6000);
         } else {
           $('msg').textContent = CLUES[idx];
         }
