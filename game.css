@@ -21,6 +21,9 @@
    recorta la cámara; con hidden en body (y html sin overflow) el recorte pasa a la pantalla, como espera AR.js. */
 html { overflow: visible; }
 body { overflow: hidden; font-weight: 500; }
+/* base.css limita todo video a max-width: 100%: el de la cámara debe medir lo que AR.js decide, o se achica
+   y deja de coincidir con el canvas 3D (las piezas se ven corridas). */
+#arjs-video { max-width: none; }
 
 /* Pantallas de papel: inicio y final */
 .screen { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; overflow-y: auto;
@@ -100,7 +103,8 @@ body { overflow: hidden; font-weight: 500; }
 .slot-3 { --c: var(--color-piece-3); --c-ink: var(--color-piece-3-ink); }
 .timer { padding-inline: var(--space-xs) var(--space-sm); font-size: var(--text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-#msg { width: 100%; max-width: 30rem; display: grid; gap: var(--space-3xs); padding: var(--space-sm) var(--space-md);
+#msg { position: fixed; inset: auto var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom, 0px)); z-index: var(--z-sticky);
+       max-width: 30rem; margin-inline: auto; display: grid; gap: var(--space-3xs); padding: var(--space-sm) var(--space-md);
        border-radius: var(--radius-card); text-align: center; }
 #msg h2 { max-width: none; font-size: var(--text-md); letter-spacing: 0; }
 #msg p { max-width: none; font-size: var(--text-md); line-height: 1.4; color: var(--color-ink-2); }
