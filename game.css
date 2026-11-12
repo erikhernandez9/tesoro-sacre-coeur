@@ -3,8 +3,9 @@
  * axes: light/rounded-sans/chromatic-yellow · posture: full-palette · contrast: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V4 · weakest: P, a cheerful paper game could feel generic; the three Hum accents became the three pieces, so the colour system is the game's own inventory */
 /* Hallmark · dismissed F4 · .btn is the cream card-stock secondary from Hum, only .btn--primary takes the pear fill, one pear button per screen */
+/* Gate 34 (overflow-x: clip) is knowingly broken: AR.js sizes body to the camera feed and needs body overflow hidden to crop it to the screen. base.css is not loaded for the same reason; its UI rules live below, scoped to the UI. */
+/* Hallmark · dismissed F16 · the game never shows a page scrollbar: body overflow is hidden for the camera and only the short intro sheet can scroll */
 @import url("./tokens.css");
-@import url("./base.css");
 
 :root {
   /* Las piezas en 3D usan estos valores (A-Frame no lee OKLCH): son los acentos de Hum en sRGB */
@@ -17,13 +18,21 @@
   --hud-control: 40px;
 }
 
-/* AR.js agranda el body al tamaño del video y lo centra con márgenes negativos. Con overflow: clip el body
-   recorta la cámara; con hidden en body (y html sin overflow) el recorte pasa a la pantalla, como espera AR.js. */
-html { overflow: visible; }
-body { overflow: hidden; font-weight: 500; }
-/* base.css limita todo video a max-width: 100%: el de la cámara debe medir lo que AR.js decide, o se achica
-   y deja de coincidir con el canvas 3D (las piezas se ven corridas). */
-#arjs-video { max-width: none; }
+/* html, body y el video quedan como AR.js los espera (igual que antes del rediseño): AR.js agranda el body
+   al tamaño de la cámara y lo centra con márgenes negativos; cualquier otra regla global la corta o la desalinea. */
+* { box-sizing: border-box; }
+body { margin: 0; overflow: hidden; font-family: var(--font-body); font-weight: 500; color: var(--color-ink); -webkit-font-smoothing: antialiased; }
+
+/* Base de la UI, solo dentro de sus propios elementos */
+.screen, #hud, #msg { line-height: 1.5; }
+.screen h1, .screen h2, #msg h2 { margin: 0; font-family: var(--font-display); font-weight: var(--display-weight); font-synthesis: none;
+  letter-spacing: var(--tracking-display); line-height: 1.05; overflow-wrap: break-word; min-width: 0; text-wrap: balance; }
+.screen p, #msg p { margin: 0; text-wrap: pretty; }
+.screen svg { display: block; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+::selection { background: color-mix(in oklab, var(--color-accent) 22%, transparent); color: var(--color-ink); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Pantallas de papel: inicio y final */
 .screen { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; overflow-y: auto;
@@ -103,7 +112,7 @@ body { overflow: hidden; font-weight: 500; }
 .slot-3 { --c: var(--color-piece-3); --c-ink: var(--color-piece-3-ink); }
 .timer { padding-inline: var(--space-xs) var(--space-sm); font-size: var(--text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-#msg { position: fixed; inset: auto var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom, 0px)); z-index: var(--z-sticky);
+#msg { position: fixed; left: var(--space-md); right: var(--space-md); bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px)); z-index: var(--z-sticky);
        max-width: 30rem; margin-inline: auto; display: grid; gap: var(--space-3xs); padding: var(--space-sm) var(--space-md);
        border-radius: var(--radius-card); text-align: center; }
 #msg h2 { max-width: none; font-size: var(--text-md); letter-spacing: 0; }
