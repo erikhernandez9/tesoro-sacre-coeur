@@ -13,6 +13,8 @@ Al juntar las 3, aparece el escudo completo girando y la pantalla final con el t
 
 ## Estructura
 - `index.html`: juego (A-Frame + AR.js, detección `mono_and_matrix` 3x3, historia, inventario de piezas, pistas y temporizador).
+- `game.css`: estilos del juego (tema Hum: papel crema con grano, controles de cartulina, fuente Chillax). Los colores de las piezas 3D salen de sus tokens `--color-piece-*` vía `data-color`.
+- `tokens.css` / `base.css`: tokens de diseño (colores OKLCH, espaciado, tipografía) y reglas base, generados con Hallmark. `.hallmark/` guarda el registro del rediseño.
 - `marcadores.html`: hoja para imprimir los 3 marcadores (uno por hoja A4).
 - `markers/barcode-{1,2,3}.png`: marcadores oficiales de ARToolKit (Matrix code 3x3).
 

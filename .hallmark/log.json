@@ -1,0 +1,19 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "hum",
+  "signature": "the shield in three accent pieces",
+  "sections": [
+   "intro",
+   "hud",
+   "clue card",
+   "win"
+  ],
+  "waived": [],
+  "prompt": "AR treasure hunt game: collect 3 shield pieces",
+  "date": "2026-11-12"
+ }
+]
